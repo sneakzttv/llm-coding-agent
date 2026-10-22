@@ -1,13 +1,81 @@
 # Toolbench — constrained LLM coding-agent demo
 
+**[Live demo - GitHub Pages](https://sneakzttv.github.io/llm-coding-agent/)**
+
 A standalone, local-first portfolio project demonstrating **plan → constrained
 read tools → proposed edit → schema/path validation → real write → subprocess
 unittest → cleanup**. No packages, frontend build, credentials, or network are
-required for the default demo. Python **3.11+** is the intended runtime.
+required for the default local demo. Python **3.11+** is the intended local runtime.
+The static Pages demo runs the deterministic workflow entirely in JavaScript,
+using a virtual workspace and actual fixture comparisons, not Python unittest.
 
 This is a deliberately finite **declarative recipe editor**, not a general coding
 assistant. It edits executable *behavior* through trusted operations, never by
 running model-generated Python on your host.
+
+## Browser demo vs local server
+
+| Capability | GitHub Pages / static host | Local `python server.py` |
+| --- | --- | --- |
+| Scenarios, plan, read, validated recipe edit | Deterministic browser engine | Deterministic Python or optional provider |
+| Workspace | Disposable in-memory virtual files | Owned disposable directory on disk |
+| Verification | **Browser verifier: JS re-implementation of the trusted runner's fixture checks** | Real isolated Python unittest subprocess |
+| Provider | Disabled; no credential input or remote API calls | Optional server-side OpenAI-compatible client |
+| Trace and six tutorial checkpoints | Actual JS inputs/results; `browser_verifier` event | Actual server inputs/results; `unittest` event |
+
+Pages is a static host: it cannot run `server.py`, Python, or a subprocess. The
+browser engine validates the same finite recipe language (exact keys, up to five
+known string operations, no duplicates), reads virtual `task.json` and immutable
+`fixtures.json`, writes only the recipe, applies it in order, compares all three
+examples, then discards the virtual files. Both engines load tasks, solutions and
+fixture examples from **`static/scenarios.json`**. These are visible acceptance
+examples, not hidden benchmarks. The browser result's `returncode` is a 0/1
+success convention for UI compatibility, **not** a process exit code.
+
+Provider mode is disabled on Pages: browser requests would expose API keys and
+most providers block CORS. There is no browser key field, proxy, CDN, downloaded
+model, or secret in the static bundle. Run the local Python server for provider
+mode; its existing server-side credential handling is unchanged.
+
+**Engine selection:** relative `GET ./api/config` selects the Python backend
+when it returns valid configuration. A **404 only** selects the browser engine
+and loads `./scenarios.json`. Other HTTP errors, malformed configuration, and
+network errors are displayed, not silently downgraded. After selection, server
+run/provider failures never fall back to scripted browser results. Runtime
+labels and checkpoint 5 distinguish the engines. Relative module, CSS, API and
+fixture URLs support the `/llm-coding-agent/` project subpath.
+
+To preview static mode locally (modern browser, HTTP rather than `file://`):
+
+```powershell
+python -m http.server 8081 --bind 127.0.0.1 --directory static
+```
+
+Open **http://127.0.0.1:8081/**. Initial page/assets/fixture loading needs network
+access to the static host; subsequent deterministic workflow runs need no
+provider connection. There is no service worker or installable offline cache.
+Refreshing loses the trace; no browser persistence or host disk writes occur.
+Modern browsers with ES modules, private fields, and `crypto.randomUUID` on
+HTTPS (or trusted localhost) are required. The curated fixtures use ASCII;
+parity tests also cover selected Unicode whitespace, case and sort behavior,
+but do not certify every Unicode-version difference between runtimes.
+
+## GitHub Pages deployment
+
+`.github/workflows/pages.yml` runs on **push to main** and manual
+`workflow_dispatch`. It runs the dependency-free Node tests (including Python
+parity), checks JavaScript syntax, uploads **only `static/`** with
+`actions/upload-pages-artifact@v3`, then deploys using
+`actions/deploy-pages@v4`. The workflow has read-only contents plus `pages: write`
+and `id-token: write`, a `pages` concurrency group, and the `github-pages`
+environment. No API secrets or server runtime are deployed.
+
+A repository administrator must select **Settings > Pages > Build and deployment
+> Source: GitHub Actions**, then merge/push to main or run the workflow. The
+expected URL is the live-demo link above; it will only be available after a
+successful deployment. Adding the workflow does not itself publish this branch
+or change repository settings. This change does not push, open a PR, or enable
+Pages automatically.
 
 ## Run locally
 
@@ -79,7 +147,7 @@ administrator environment variables configure destinations; request bodies
 cannot supply arbitrary URLs. HTTPS is required except on loopback HTTP.
 Environment proxies and HTTP redirects are disabled.
 
-## What really happens
+## What really happens on the local Python server
 
 1. Create `.workspaces/<random UUID>` with a matching ownership marker.
 2. Install a starter `task.json`, fixed `fixtures.json`, and a copy of the
@@ -146,9 +214,22 @@ Run centrally from this directory:
 ```powershell
 python -m unittest discover -s tests -v
 python -m compileall -q agent.py provider.py server.py trusted_runner.py tests
+node --test
+node --check static/browser-engine.js
+node --check static/app.js
+git diff --check
 ```
 
-The suite includes both offline workflows, a safe-but-wrong provider edit with
+Node **20+** and Python on PATH are needed for `node --test`; no npm install is
+needed. `tests/browser-engine.test.js` tests malformed/unknown/duplicate recipes,
+plan validation, virtual path/read/write boundaries, both scenarios, actual
+wrong-recipe failures, trace shape and honest verifier labels. A parity test
+compares validation acceptance and all **326 legal operation sequences** against
+Python's interpreter on the shared fixture inputs plus selected Unicode cases.
+Python in that test is a development check only, not part of the deployed site.
+Both the existing CI and Pages workflow run Node tests before deployment.
+
+The Python suite includes both offline workflows, a safe-but-wrong provider edit with
 real failed subprocess tests, schema/output failures, traversal/absolute/UNC/ADS
 paths, Windows reparse detection, optional real symlink checks (skipped without
 OS permission), provider protocol doubles, no-fallback behavior, and loopback
@@ -160,9 +241,10 @@ not a claim that CI has already run.
 Manual browser smoke: exercise both tasks, all checkpoint buttons, Back/Next,
 Reset, trace expansion, mobile width, offline/provider selection and the
 unconfigured-provider explanation. For real provider verification, configure a
-served model and inspect both actual call roles and resulting tests. The
-implementation author did **not** execute commands/tests during generation;
-central execution is required before calling this validated.
+served model and inspect both actual call roles and resulting tests. Also
+preview static mode under a project subpath: run both scenarios, inspect the JS
+verifier evidence and confirm the provider option is disabled. Automated checks
+do not certify a live provider account or a successful remote Pages deployment.
 
 ## Optional Docker
 
@@ -184,7 +266,7 @@ Docker build/runtime is optional and not claimed verified until run.
 
 | Resume topic | Implemented here |
 | --- | --- |
-| Planning, tool use, edits, validation | Finite, explicit Python orchestration with actual JSON edits and tests |
+| Planning, tool use, edits, validation | Finite Python/browser orchestration with actual recipe edits and fixture checks |
 | Python | Standard-library server, provider client, interpreter and tests |
 | OpenAI / local LLM | Optional real OpenAI-compatible HTTP protocol; no bundled models |
 | Multi-model | Independently allowlisted planner/editor roles; no automatic routing/evaluation |
@@ -203,7 +285,10 @@ frameworks, integrations, benchmarks, deployments or production usage.
 - `provider.py`: explicit provider configuration and strict HTTP/JSON protocol.
 - `trusted_runner.py`: fixed finite interpreter and immutable-fixture unittest.
 - `server.py`: stdlib HTTP routes and browser-origin guards.
-- `static/`: interactive checkpoint tutorial and real tool trace viewer.
+- `static/app.js`, `index.html`, `style.css`: dual-runtime tutorial and tool trace viewer.
+- `static/browser-engine.js`: finite JS engine, virtual workspace and browser verifier.
+- `static/scenarios.json`: shared tasks, deterministic recipes and acceptance fixtures.
+- `.github/workflows/pages.yml`: tested static-only GitHub Pages deployment.
 - `tests/`: dependency-free unit and integration coverage.
 
 MIT licensed; see `LICENSE`.

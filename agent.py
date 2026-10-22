@@ -15,29 +15,8 @@ from provider import Provider, ProviderError
 
 ROOT = Path(__file__).absolute().parent
 OPERATIONS = ("trim", "lowercase", "drop_empty", "unique", "sort")
-SCENARIOS = {
-    "normalize-tags": {
-        "title": "Normalize search tags",
-        "task": "Trim tags, lowercase them, remove empty tags and duplicates, then sort.",
-        "operations": list(OPERATIONS),
-        "cases": [
-            {"input": [" Python ", "AI", "python", "", " ai "], "expected": ["ai", "python"]},
-            {"input": ["Z", " a ", "A", "  "], "expected": ["a", "z"]},
-            {"input": [], "expected": []},
-        ],
-    },
-    "clean-labels": {
-        "title": "Clean display labels",
-        "task": "Trim labels, remove empty labels and duplicates; preserve case and order.",
-        "operations": ["trim", "drop_empty", "unique"],
-        "cases": [
-            {"input": [" Beta ", "", "Alpha", "Beta", " alpha "],
-             "expected": ["Beta", "Alpha", "alpha"]},
-            {"input": [" Z ", "a", "Z", "  "], "expected": ["Z", "a"]},
-            {"input": [], "expected": []},
-        ],
-    },
-}
+# Both engines consume the same checked-in tasks and immutable fixture examples.
+SCENARIOS = json.loads((ROOT / "static" / "scenarios.json").read_text(encoding="utf-8"))
 # One bounded subprocess per server at a time avoids overlapping resource usage.
 RUN_LOCK = threading.Lock()
 

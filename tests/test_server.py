@@ -38,7 +38,7 @@ class ServerTests(unittest.TestCase):
         self.assertFalse(config["provider_configured"])
         self.assertNotIn("api_key", config)
         self.assertIn("frame-ancestors 'none'", headers["Content-Security-Policy"])
-        for asset in ("/", "/app.js", "/style.css"):
+        for asset in ("/", "/app.js", "/style.css", "/browser-engine.js", "/scenarios.json"):
             with self.subTest(asset=asset):
                 self.assertEqual(self.request("GET", asset)[0], 200)
 
