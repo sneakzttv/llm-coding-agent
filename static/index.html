@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Toolbench · constrained coding agent</title>
+  <link rel="stylesheet" href="/style.css">
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <!-- All dynamic/model text is inserted with textContent, never HTML. -->
+  <header class="masthead"><a href="/">TB / TOOLBENCH</a><span>LOCAL-FIRST · PYTHON STDLIB</span></header>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">AN EXPLAINABLE AGENT LAB</p>
+      <h1>Small tools.<br>Visible decisions.</h1>
+      <p class="lead">Follow a task from plan to validated edit to real tests.
+        A deliberately narrow coding agent, with boundaries you can inspect.</p>
+      <div class="badges"><span>Offline by default</span><span>No generated code execution</span><span>Real unittest subprocess</span></div>
+    </section>
+    <section class="workbench" aria-labelledby="workbench-title">
+      <aside class="controls">
+        <p class="eyebrow">01 / CONFIGURE</p>
+        <h2 id="workbench-title">Your experiment</h2>
+        <label for="scenario">Sample task</label>
+        <select id="scenario" aria-describedby="task-description"></select>
+        <p id="task-description" class="hint"></p>
+        <label for="mode">Planning &amp; editing backend</label>
+        <select id="mode" aria-describedby="mode-help">
+          <option value="offline">Deterministic offline demo</option>
+          <option value="provider">Real OpenAI-compatible provider</option>
+        </select>
+        <p id="mode-help" class="hint">Offline uses scripted decisions, not an LLM. Provider mode makes two real API calls and never silently falls back.</p>
+        <fieldset id="models" hidden>
+          <legend>Model roles</legend>
+          <label for="planner">Planner model</label><select id="planner"></select>
+          <label for="editor">Editor model</label><select id="editor"></select>
+          <p class="hint">Choose the same model or two different allowlisted models. API credentials stay on the server.</p>
+        </fieldset>
+        <button id="run" class="primary" disabled>Run the workflow <span aria-hidden="true">↗</span></button>
+        <button id="reset" class="secondary">Reset tutorial</button>
+        <p id="status" role="status" aria-live="polite">Connecting to the local server…</p>
+      </aside>
+      <article class="tutorial" aria-labelledby="checkpoint-title">
+        <div class="section-top"><p class="eyebrow">02 / WALK THROUGH</p><span id="counter">1 / 6</span></div>
+        <nav id="steps" aria-label="Tutorial checkpoints"></nav>
+        <h2 id="checkpoint-title"></h2>
+        <p id="checkpoint-copy"></p>
+        <div id="evidence-label" class="evidence-label">WHAT TO LOOK FOR</div>
+        <pre id="evidence" tabindex="0"></pre>
+        <div class="navigation">
+          <button id="back" class="secondary">← Back</button>
+          <button id="next" class="primary">Next checkpoint →</button>
+        </div>
+        <p class="hint">Checkpoints explain an already-completed server run; Next does not execute individual tools. You can explore the tutorial before running.</p>
+      </article>
+    </section>
+    <section class="trace-section" aria-labelledby="trace-title">
+      <div class="section-top"><div><p class="eyebrow">03 / INSPECT</p><h2 id="trace-title">The tool ledger</h2></div><span id="result-badge">NOT RUN</span></div>
+      <p class="hint">Expand an event to inspect its real inputs or outputs. Model prose is not evidence of success.</p>
+      <div id="trace"><p class="empty">Run an experiment to capture the tool trace.</p></div>
+    </section>
+    <section class="boundary" aria-labelledby="boundary-title">
+      <p class="eyebrow">THE TRUST BOUNDARY</p>
+      <h2 id="boundary-title">A recipe editor, not a host-code executor.</h2>
+      <div class="boundary-grid">
+        <div><h3>What can change</h3><p>A JSON list of five known string operations in a new owned sample workspace. The model cannot write fixtures, Python, paths, or commands.</p></div>
+        <div><h3>What actually runs</h3><p>A fixed, checked-in Python unittest runner interprets the validated recipe. Passing three fixtures is evidence about those examples, not a proof of general correctness.</p></div>
+        <div><h3>What this is not</h3><p>No LangChain, LangGraph, GitHub API, repository editing, arbitrary task solving, or OS sandbox. Local users and the checked-in source are trusted. See README for deployment limits.</p></div>
+      </div>
+    </section>
+  </main>
+  <footer>TOOLBENCH / A transparent portfolio demonstrator · MIT licensed</footer>
+</body>
+</html>
