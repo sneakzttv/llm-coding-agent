@@ -1,0 +1,12 @@
+# Workspaces are disposable owned run data, not portfolio source.
+__pycache__/
+*.py[cod]
+.workspaces/
+.test-workspaces/
+.env
+.env.*
+.venv/
+.coverage
+htmlcov/
+.DS_Store
+Thumbs.db
