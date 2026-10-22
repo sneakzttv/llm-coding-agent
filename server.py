@@ -14,6 +14,8 @@ from provider import Provider, ProviderError, parse_object
 # Files are mapped explicitly: URL paths are never joined onto host paths.
 ASSETS = {
     "/": ("index.html", "text/html; charset=utf-8"),
+    "/browser-engine.js": ("browser-engine.js", "text/javascript; charset=utf-8"),
+    "/scenarios.json": ("scenarios.json", "application/json; charset=utf-8"),
     "/app.js": ("app.js", "text/javascript; charset=utf-8"),
     "/style.css": ("style.css", "text/css; charset=utf-8"),
 }

@@ -1,0 +1,85 @@
+{
+  "normalize-tags": {
+    "title": "Normalize search tags",
+    "task": "Trim tags, lowercase them, remove empty tags and duplicates, then sort.",
+    "operations": [
+      "trim",
+      "lowercase",
+      "drop_empty",
+      "unique",
+      "sort"
+    ],
+    "cases": [
+      {
+        "input": [
+          " Python ",
+          "AI",
+          "python",
+          "",
+          " ai "
+        ],
+        "expected": [
+          "ai",
+          "python"
+        ]
+      },
+      {
+        "input": [
+          "Z",
+          " a ",
+          "A",
+          "  "
+        ],
+        "expected": [
+          "a",
+          "z"
+        ]
+      },
+      {
+        "input": [],
+        "expected": []
+      }
+    ]
+  },
+  "clean-labels": {
+    "title": "Clean display labels",
+    "task": "Trim labels, remove empty labels and duplicates; preserve case and order.",
+    "operations": [
+      "trim",
+      "drop_empty",
+      "unique"
+    ],
+    "cases": [
+      {
+        "input": [
+          " Beta ",
+          "",
+          "Alpha",
+          "Beta",
+          " alpha "
+        ],
+        "expected": [
+          "Beta",
+          "Alpha",
+          "alpha"
+        ]
+      },
+      {
+        "input": [
+          " Z ",
+          "a",
+          "Z",
+          "  "
+        ],
+        "expected": [
+          "Z",
+          "a"
+        ]
+      },
+      {
+        "input": [],
+        "expected": []
+      }
+    ]
+  }
+}
